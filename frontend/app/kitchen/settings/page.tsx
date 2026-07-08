@@ -159,9 +159,8 @@ export default function KitchenSettingsPage() {
                 <Select
                   value={settings?.language || "en"}
                   onValueChange={(value) => handleSettingChange('language', value)}
-                  disabled={isUpdating}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger disabled={isUpdating}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
