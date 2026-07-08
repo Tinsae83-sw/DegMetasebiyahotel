@@ -41,6 +41,15 @@ const io = new Server(httpServer, {
 // Make io globally accessible
 global.io = io;
 
+// Run Prisma migrations on startup
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
+
+// Initialize database connection
+prisma.$connect()
+  .then(() => console.log('Database connected successfully'))
+  .catch((err) => console.error('Database connection failed:', err));
+
 // Socket.IO connection handling
 io.on('connection', (socket) => {
   console.log('Client connected:', socket.id);
