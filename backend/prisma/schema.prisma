@@ -1,0 +1,280 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  CASHIER
+  WAITER
+  KITCHEN
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PREPARING
+  READY
+  SERVED
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  REFUNDED
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  CHAPA
+}
+
+enum CustomerTier {
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  phone     String?
+  role      Role     @default(WAITER)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  lastLogin DateTime?
+
+  orders        Order[]
+  staffSettings StaffSetting?
+  assignedTables Table[]  @relation("TableWaiter")
+  assignedRooms  Room[]   @relation("RoomWaiter")
+
+  @@map("users")
+}
+
+model Category {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  image       String?
+  isActive    Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  menuItems MenuItem[]
+
+  @@map("categories")
+}
+
+model MenuItem {
+  id              String   @id @default(uuid())
+  name            String
+  description     String
+  price           Float
+  categoryId      String
+  images          String[]
+  preparationTime Int      @default(15)
+  ingredients     String[]
+  isFeatured      Boolean  @default(false)
+  isAvailable     Boolean  @default(true)
+  spicyLevel      Int      @default(0)
+  tags            String[]
+  calories        Int?
+  protein         Float?
+  carbs           Float?
+  fat             Float?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  category   Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+
+  @@map("menu_items")
+}
+
+model Room {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  capacity    Int
+  location    String?
+  isActive    Boolean  @default(true)
+  qrCode      String?
+  waiterId    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tables Table[]
+  waiter User?  @relation("RoomWaiter", fields: [waiterId], references: [id])
+
+  @@map("rooms")
+}
+
+model Table {
+  id        String   @id @default(uuid())
+  number    Int      @unique
+  capacity  Int
+  location  String?
+  isActive  Boolean  @default(true)
+  qrCode    String?
+  roomId    String?
+  waiterId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders Order[]
+  room   Room?  @relation(fields: [roomId], references: [id])
+  waiter User?  @relation("TableWaiter", fields: [waiterId], references: [id])
+
+  @@map("tables")
+}
+
+model Order {
+  id            String        @id @default(uuid())
+  tableNumber   Int
+  tableId       String?
+  status        OrderStatus   @default(PENDING)
+  paymentStatus PaymentStatus @default(PENDING)
+  paymentMethod PaymentMethod?
+  subtotal      Float
+  tax           Float
+  discount      Float         @default(0)
+  total         Float
+  notes         String?
+  waiterId      String?
+  customerId    String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  table      Table?        @relation(fields: [tableId], references: [id])
+  waiter     User?         @relation(fields: [waiterId], references: [id])
+  items      OrderItem[]
+  customer   Customer?     @relation(fields: [customerId], references: [id])
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String @id @default(uuid())
+  orderId   String
+  menuItemId String
+  name      String
+  quantity  Int
+  price     Float
+  notes     String?
+
+  order   Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id])
+
+  @@map("order_items")
+}
+
+model Customer {
+  id            String        @id @default(uuid())
+  name          String
+  email         String        @unique
+  phone         String
+  address       String?
+  totalOrders   Int           @default(0)
+  totalSpent    Float         @default(0)
+  lastVisit     DateTime?
+  loyaltyPoints Int           @default(0)
+  tier          CustomerTier @default(BRONZE)
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  orders Order[]
+
+  @@map("customers")
+}
+
+model StaffSetting {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  theme     String?  @default("light")
+  language  String?  @default("en")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("staff_settings")
+}
+
+model RestaurantSettings {
+  id                 String   @id @default(uuid())
+  name               String
+  logo               String?
+  coverImage         String?
+  address            String
+  phone              String
+  email              String
+  website            String?
+  googleMapsLocation String?
+  currency           String   @default("USD")
+  language           String   @default("en")
+  taxPercentage      Float    @default(0)
+  serviceCharge      Float    @default(0)
+  primaryColor       String   @default("#3b82f6")
+  secondaryColor     String   @default("#10b981")
+  accentColor        String   @default("#f59e0b")
+  facebook           String?
+  instagram          String?
+  twitter            String?
+  mondayOpen         String   @default("09:00")
+  mondayClose        String   @default("22:00")
+  mondayIsOpen       Boolean  @default(true)
+  tuesdayOpen        String   @default("09:00")
+  tuesdayClose       String   @default("22:00")
+  tuesdayIsOpen      Boolean  @default(true)
+  wednesdayOpen      String   @default("09:00")
+  wednesdayClose     String   @default("22:00")
+  wednesdayIsOpen    Boolean  @default(true)
+  thursdayOpen       String   @default("09:00")
+  thursdayClose      String   @default("22:00")
+  thursdayIsOpen     Boolean  @default(true)
+  fridayOpen         String   @default("09:00")
+  fridayClose        String   @default("23:00")
+  fridayIsOpen       Boolean  @default(true)
+  saturdayOpen       String   @default("10:00")
+  saturdayClose      String   @default("23:00")
+  saturdayIsOpen     Boolean  @default(true)
+  sundayOpen         String   @default("10:00")
+  sundayClose        String   @default("21:00")
+  sundayIsOpen       Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("restaurant_settings")
+}
+
+model CustomerRequest {
+  id          String   @id @default(uuid())
+  tableId     String
+  tableNumber Int
+  customerId  String?
+  type        String
+  status      String   @default("pending")
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  completedAt DateTime?
+
+  @@map("customer_requests")
+}
