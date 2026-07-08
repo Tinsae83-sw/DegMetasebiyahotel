@@ -15,8 +15,9 @@ export const getAllCategories = async (req: Request, res: Response, next: NextFu
 export const getCategoryById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
+    const categoryId = Array.isArray(id) ? id[0] : id;
     const category = await prisma.category.findUnique({
-      where: { id },
+      where: { id: categoryId },
       include: { menuItems: true },
     });
 
@@ -45,9 +46,10 @@ export const createCategory = async (req: Request, res: Response, next: NextFunc
 export const updateCategory = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
+    const categoryId = Array.isArray(id) ? id[0] : id;
     const data = req.body;
     const category = await prisma.category.update({
-      where: { id },
+      where: { id: categoryId },
       data,
     });
     res.json(category);
@@ -59,8 +61,9 @@ export const updateCategory = async (req: Request, res: Response, next: NextFunc
 export const deleteCategory = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
+    const categoryId = Array.isArray(id) ? id[0] : id;
     await prisma.category.delete({
-      where: { id },
+      where: { id: categoryId },
     });
     res.status(204).send();
   } catch (error) {

@@ -9,7 +9,8 @@ router.get('/', authenticate, (req, res) => {
 });
 
 router.patch('/:id/read', authenticate, (req, res) => {
-  const notification = markWaiterNotificationRead(req.params.id, req.user?.userId);
+  const notificationId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const notification = markWaiterNotificationRead(notificationId, req.user?.userId);
   res.json({ success: true, notification });
 });
 

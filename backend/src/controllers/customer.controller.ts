@@ -28,8 +28,9 @@ export const getAllCustomers = async (req: Request, res: Response, next: NextFun
 export const getCustomerById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
+    const customerId = Array.isArray(id) ? id[0] : id;
     const customer = await prisma.customer.findUnique({
-      where: { id },
+      where: { id: customerId },
       include: { orders: true },
     });
 
@@ -58,9 +59,10 @@ export const createCustomer = async (req: Request, res: Response, next: NextFunc
 export const updateCustomer = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
+    const customerId = Array.isArray(id) ? id[0] : id;
     const data = req.body;
     const customer = await prisma.customer.update({
-      where: { id },
+      where: { id: customerId },
       data,
     });
     res.json(customer);
@@ -72,8 +74,9 @@ export const updateCustomer = async (req: Request, res: Response, next: NextFunc
 export const deleteCustomer = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
+    const customerId = Array.isArray(id) ? id[0] : id;
     await prisma.customer.delete({
-      where: { id },
+      where: { id: customerId },
     });
     res.status(204).send();
   } catch (error) {
@@ -84,8 +87,9 @@ export const deleteCustomer = async (req: Request, res: Response, next: NextFunc
 export const getOrderHistory = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
+    const customerId = Array.isArray(id) ? id[0] : id;
     const orders = await prisma.order.findMany({
-      where: { customerId: id },
+      where: { customerId: customerId },
       include: { items: true },
       orderBy: { createdAt: 'desc' },
     });
@@ -98,10 +102,11 @@ export const getOrderHistory = async (req: Request, res: Response, next: NextFun
 export const addLoyaltyPoints = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
+    const customerId = Array.isArray(id) ? id[0] : id;
     const { points } = req.body;
 
     const customer = await prisma.customer.update({
-      where: { id },
+      where: { id: customerId },
       data: {
         loyaltyPoints: { increment: points },
       },

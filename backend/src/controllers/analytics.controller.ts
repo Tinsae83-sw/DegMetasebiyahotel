@@ -407,6 +407,8 @@ export const getStaffPerformance = async (req: Request, res: Response, next: Nex
             total: true,
             status: true,
             createdAt: true,
+            updatedAt: true,
+            tableId: true,
             items: true
           }
         });
@@ -479,7 +481,7 @@ export const getStaffPerformance = async (req: Request, res: Response, next: Nex
             : 0;
 
           const delayedOrders = orderItems.filter(item => 
-            item.order.status === 'DELAYED'
+            item.order.status === 'CANCELLED'
           ).length;
 
           performance = {

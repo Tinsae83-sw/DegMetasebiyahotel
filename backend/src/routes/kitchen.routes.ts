@@ -67,8 +67,9 @@ router.get('/orders', authenticate, async (req, res) => {
 
 router.get('/orders/:id', authenticate, async (req, res) => {
   try {
+    const orderId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const order = await prisma.order.findUnique({
-      where: { id: req.params.id },
+      where: { id: orderId },
       include: {
         items: true,
         waiter: { select: { id: true, name: true } },
@@ -112,8 +113,9 @@ router.get('/orders/:id', authenticate, async (req, res) => {
 router.patch('/orders/:id/status', authenticate, async (req, res) => {
   try {
     const { status } = req.body;
+    const orderId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const updatedOrder = await prisma.order.update({
-      where: { id: req.params.id },
+      where: { id: orderId },
       data: { status },
     });
 
@@ -126,8 +128,9 @@ router.patch('/orders/:id/status', authenticate, async (req, res) => {
 
 router.post('/orders/:id/accept', authenticate, async (req, res) => {
   try {
+    const orderId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const updatedOrder = await prisma.order.update({
-      where: { id: req.params.id },
+      where: { id: orderId },
       data: { status: 'PREPARING' },
     });
 
@@ -148,13 +151,14 @@ router.post('/orders/:id/start-preparing', authenticate, async (req, res) => {
 
 router.post('/orders/:id/ready', authenticate, async (req, res) => {
   try {
+    const orderId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const updatedOrder = await prisma.order.update({
-      where: { id: req.params.id },
+      where: { id: orderId },
       data: { status: 'READY' },
     });
 
     const orderWithRelations = await prisma.order.findUnique({
-      where: { id: req.params.id },
+      where: { id: orderId },
       include: { waiter: true },
     });
 
@@ -230,7 +234,8 @@ router.get('/notifications', authenticate, async (req, res) => {
 });
 
 router.patch('/notifications/:id/read', authenticate, async (req, res) => {
-  const notification = markWaiterNotificationRead(req.params.id, req.user?.userId);
+  const notificationId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const notification = markWaiterNotificationRead(notificationId, req.user?.userId);
   res.json({ success: true, notification });
 });
 
