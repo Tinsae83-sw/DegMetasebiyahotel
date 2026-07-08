@@ -194,9 +194,8 @@ export default function KitchenSettingsPage() {
                   <Select
                     value={settings?.refreshInterval?.toString() || "30"}
                     onValueChange={(value) => handleSettingChange('refreshInterval', parseInt(value))}
-                    disabled={isUpdating}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger disabled={isUpdating}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -225,9 +224,8 @@ export default function KitchenSettingsPage() {
                 <Select
                   value={settings?.defaultStation || "all"}
                   onValueChange={(value) => handleSettingChange('defaultStation', value)}
-                  disabled={isUpdating}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger disabled={isUpdating}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
