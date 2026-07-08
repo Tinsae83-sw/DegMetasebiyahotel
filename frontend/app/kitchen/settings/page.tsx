@@ -131,9 +131,8 @@ export default function KitchenSettingsPage() {
                 <Select
                   value={settings?.displayDensity || "NORMAL"}
                   onValueChange={(value) => handleSettingChange('displayDensity', value)}
-                  disabled={isUpdating}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger disabled={isUpdating}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
