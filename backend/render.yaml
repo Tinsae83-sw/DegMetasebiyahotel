@@ -2,8 +2,8 @@ services:
   - type: web
     name: degmetasebiyahotel-backend
     env: node
-    buildCommand: npm install && npm run build
-    startCommand: npm start
+    buildCommand: npm install
+    startCommand: npx tsx src/index.ts
     envVars:
       - key: NODE_ENV
         value: production
