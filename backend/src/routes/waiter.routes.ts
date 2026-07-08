@@ -7,7 +7,7 @@ import { authenticate, authorize } from '../middleware/auth.js';
 
 const router = Router();
 
-router.get('/stats', authenticate, authorize('WAITER', 'ADMIN', 'MANAGER'), getWaiterStats);
-router.get('/performance', authenticate, authorize('WAITER', 'ADMIN', 'MANAGER'), getWaiterPerformance);
+router.get('/stats', authenticate, authorize('WAITER', 'ADMIN'), getWaiterStats);
+router.get('/performance', authenticate, authorize('WAITER', 'ADMIN'), getWaiterPerformance);
 
 export default router;

@@ -21,6 +21,6 @@ router.get('/table/:tableId', authenticate, getCustomerRequestsByTable);
 router.get('/:id', authenticate, getCustomerRequestById);
 router.post('/', authenticate, createCustomerRequest);
 router.patch('/:id', authenticate, updateCustomerRequest);
-router.delete('/:id', authenticate, authorize('ADMIN', 'MANAGER'), deleteCustomerRequest);
+router.delete('/:id', authenticate, authorize('ADMIN'), deleteCustomerRequest);
 
 export default router;
